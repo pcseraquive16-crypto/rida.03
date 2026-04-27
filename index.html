@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Rifa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --surface2: #1f1f1f;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.16);
+      --text: #f0ede6;
+      --muted: rgba(240,237,230,0.45);
+      --gold: #c9933a;
+      --gold-light: #f0c060;
+      --gold-bg: rgba(201,147,58,0.1);
+      --gold-border: rgba(201,147,58,0.35);
+      --danger: #c0392b;
+      --success: #27ae60;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201,147,58,0.07) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .header-label {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.1;
+    }
+    .header h1 span {
+      color: var(--gold-light);
+    }
+    .header-sub {
+      margin-top: 0.75rem;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 4px;
+      margin-bottom: 2rem;
+    }
+    .tab {
+      flex: 1;
+      padding: 10px 0;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+      letter-spacing: 0.02em;
+    }
+    .tab.active {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border-hover);
+    }
+    .tab:hover:not(.active) { color: var(--text); }
+
+    /* Panels */
+    .panel { display: none; animation: fadeIn 0.2s ease; }
+    .panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+    .card + .card { margin-top: 1rem; }
+
+    /* Form */
+    .form-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      margin-bottom: 1.25rem;
+      color: var(--text);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid .full { grid-column: 1 / -1; }
+    }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .field input,
+    .field select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+      -webkit-appearance: none;
+    }
+    .field input::placeholder { color: var(--muted); }
+    .field input:focus,
+    .field select:focus { border-color: var(--gold); }
+    .field select { cursor: pointer; }
+    .field select option { background: #1f1f1f; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 11px;
+      background: var(--gold);
+      color: #0d0d0d;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      transition: all 0.15s;
+      margin-top: 4px;
+    }
+    .btn-primary:hover { background: var(--gold-light); }
+    .btn-primary:active { transform: scale(0.99); }
+
+    .msg {
+      font-size: 13px;
+      min-height: 20px;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+    .msg.ok { color: var(--success); }
+    .msg.err { color: var(--danger); }
+
+    .info-tip {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--gold-bg);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--gold-light);
+      margin-top: 1rem;
+      line-height: 1.5;
+    }
+    .info-tip::before {
+      content: '★';
+      font-size: 12px;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    /* Ticket list */
+    .list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .list-header h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+    }
+    .count-badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .ticket-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+      transition: border-color 0.15s;
+    }
+    .ticket-item:hover { border-color: var(--border-hover); }
+    .ticket-item.gold {
+      border-color: var(--gold-border);
+      background: var(--gold-bg);
+    }
+    .ticket-left { display: flex; align-items: center; gap: 14px; }
+    .ticket-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      min-width: 52px;
+      color: var(--text);
+    }
+    .ticket-item.gold .ticket-num { color: var(--gold-light); }
+    .ticket-meta { display: flex; flex-direction: column; }
+    .ticket-name { font-size: 14px; font-weight: 500; }
+    .ticket-contact { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .ticket-right { display: flex; align-items: center; gap: 10px; }
+
+    .badge {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+    .badge-gold { background: var(--gold-bg); color: var(--gold-light); border: 1px solid var(--gold-border); }
+    .badge-normal { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+
+    .btn-del {
+      background: none;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px 8px;
+      transition: all 0.15s;
+    }
+    .btn-del:hover { color: #e74c3c; border-color: rgba(231,76,60,0.3); background: rgba(231,76,60,0.08); }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .empty-state .icon {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+      opacity: 0.4;
+    }
+
+    /* Sorteo */
+    .sorteo-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .stat-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+    .stat-box-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px; }
+    .stat-box-val { font-family: 'DM Serif Display', serif; font-size: 2rem; font-weight: 400; }
+    .stat-box-val.gold-val { color: var(--gold-light); }
+
+    .bombo-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 2rem 0;
+    }
+    .bombo {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: border-color 0.3s;
+    }
+    .bombo.spinning {
+      animation: bomboSpin 0.35s linear infinite;
+      border-color: var(--gold-border);
+      box-shadow: 0 0 24px rgba(201,147,58,0.12);
+    }
+    @keyframes bomboSpin {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .bombo-inner {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.8rem;
+      font-weight: 400;
+      color: var(--muted);
+      transition: color 0.1s;
+    }
+    .bombo-inner.active { color: var(--text); }
+    .bombo-inner.gold-active { color: var(--gold-light); }
+
+    .btn-sortear {
+      padding: 13px 52px;
+      background: transparent;
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-sm);
+      color: var(--gold-light);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: all 0.2s;
+    }
+    .btn-sortear:hover:not(:disabled) { background: var(--gold-bg); border-color: var(--gold); }
+    .btn-sortear:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* Ganador */
+    .ganador-card {
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius);
+      background: var(--gold-bg);
+      padding: 2rem;
+      text-align: center;
+      display: none;
+    }
+    .ganador-card.visible {
+      display: block;
+      animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .ganador-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+    }
+    .ganador-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 5rem;
+      font-weight: 400;
+      color: var(--gold-light);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    .ganador-name {
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+    .ganador-contact {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+    .ganador-divider {
+      width: 40px;
+      height: 1px;
+      background: var(--gold-border);
+      margin: 1rem auto;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header class="header">
+      <p class="header-label">Sistema oficial</p>
+      <h1>Rifa <span>Gold</span></h1>
+      <p class="header-sub">Registra boletos, gestiona participantes y realiza el sorteo.</p>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('registro')">Registro</button>
+      <button class="tab" onclick="switchTab('boletos')">Boletos</button>
+      <button class="tab" onclick="switchTab('sorteo')">Sorteo</button>
+    </div>
+
+    <!-- PANEL: REGISTRO -->
+    <div id="panel-registro" class="panel active">
+      <div class="card">
+        <p class="form-title">Agregar nuevo boleto</p>
+        <div class="form-grid">
+          <div class="field">
+            <label>Número de boleto</label>
+            <input type="text" id="inp-num" placeholder="Ej. 042" />
+          </div>
+          <div class="field">
+            <label>Nombre completo</label>
+            <input type="text" id="inp-name" placeholder="Juan Pérez" />
+          </div>
+          <div class="field">
+            <label>Contacto</label>
+            <input type="text" id="inp-contact" placeholder="0991234567" />
+          </div>
+          <div class="field full">
+            <label>Tipo de boleto</label>
+            <select id="inp-type">
+              <option value="normal">Normal — probabilidad estándar</option>
+              <option value="gold">Gold — 2× probabilidad de ganar</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="agregarBoleto()">+ Agregar boleto</button>
+        <p class="msg" id="reg-msg"></p>
+        <div class="info-tip">Los boletos <strong>Gold</strong> ingresan dos veces al bombo del sorteo, duplicando automáticamente su probabilidad de ganar frente a los boletos normales.</div>
+      </div>
+    </div>
+
+    <!-- PANEL: BOLETOS -->
+    <div id="panel-boletos" class="panel">
+      <div class="list-header">
+        <h2>Boletos registrados</h2>
+        <span class="count-badge" id="count-badge">0 boletos</span>
+      </div>
+      <div id="ticket-list"></div>
+    </div>
+
+    <!-- PANEL: SORTEO -->
+    <div id="panel-sorteo" class="panel">
+      <div class="sorteo-layout">
+        <div class="stat-box">
+          <div class="stat-box-label">Normales</div>
+          <div class="stat-box-val" id="stat-normal">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-label">Gold</div>
+          <div class="stat-box-val gold-val" id="stat-gold">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-label">Total en bombo</div>
+          <div class="stat-box-val" id="stat-total">0</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="bombo-wrapper">
+          <div class="bombo" id="bombo">
+            <span class="bombo-inner" id="bombo-display">?</span>
+          </div>
+          <button class="btn-sortear" id="btn-sortear" onclick="realizarSorteo()">Realizar sorteo</button>
+        </div>
+      </div>
+
+      <div class="ganador-card" id="ganador-card">
+        <p class="ganador-label">Ganador del sorteo</p>
+        <div class="ganador-num" id="g-num"></div>
+        <div class="ganador-name" id="g-name"></div>
+        <div class="ganador-contact" id="g-contact"></div>
+        <div class="ganador-divider"></div>
+        <span class="badge" id="g-badge"></span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ——— Estado ——— */
+    let boletos = JSON.parse(localStorage.getItem('rifa_boletos') || '[]');
+
+    function guardar() {
+      localStorage.setItem('rifa_boletos', JSON.stringify(boletos));
+    }
+
+    /* ——— Tabs ——— */
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      const tabs = ['registro', 'boletos', 'sorteo'];
+      document.querySelectorAll('.tab')[tabs.indexOf(tab)].classList.add('active');
+      document.getElementById('panel-' + tab).classList.add('active');
+      if (tab === 'boletos') renderBoletos();
+      if (tab === 'sorteo') renderStats();
+    }
+
+    /* ——— Registro ——— */
+    function agregarBoleto() {
+      const num     = document.getElementById('inp-num').value.trim();
+      const name    = document.getElementById('inp-name').value.trim();
+      const contact = document.getElementById('inp-contact').value.trim();
+      const type    = document.getElementById('inp-type').value;
+      const msg     = document.getElementById('reg-msg');
+
+      if (!num || !name || !contact) {
+        setMsg(msg, 'err', 'Por favor completa todos los campos.');
+        return;
+      }
+      if (boletos.find(b => b.num === num)) {
+        setMsg(msg, 'err', `El boleto #${num} ya está registrado.`);
+        return;
+      }
+
+      boletos.push({ num, name, contact, type });
+      guardar();
+      setMsg(msg, 'ok', `Boleto #${num} registrado correctamente.`);
+      document.getElementById('inp-num').value = '';
+      document.getElementById('inp-name').value = '';
+      document.getElementById('inp-contact').value = '';
+      document.getElementById('inp-type').value = 'normal';
+    }
+
+    function setMsg(el, type, text) {
+      el.className = 'msg ' + type;
+      el.textContent = text;
+      if (type === 'ok') setTimeout(() => el.textContent = '', 3500);
+    }
+
+    /* ——— Lista ——— */
+    function renderBoletos() {
+      const container = document.getElementById('ticket-list');
+      const badge     = document.getElementById('count-badge');
+      badge.textContent = boletos.length + ' boleto' + (boletos.length !== 1 ? 's' : '');
+
+      if (boletos.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">🎟</div>
+            <p>Aún no hay boletos registrados.<br>Ve al panel de <strong>Registro</strong> para agregar.</p>
+          </div>`;
+        return;
+      }
+
+      const sorted = [...boletos].sort((a, b) =>
+        a.num.localeCompare(b.num, undefined, { numeric: true })
+      );
+
+      container.innerHTML = sorted.map(b => `
+        <div class="ticket-item ${b.type}">
+          <div class="ticket-left">
+            <div class="ticket-num">#${b.num}</div>
+            <div class="ticket-meta">
+              <div class="ticket-name">${escHtml(b.name)}</div>
+              <div class="ticket-contact">${escHtml(b.contact)}</div>
+            </div>
+          </div>
+          <div class="ticket-right">
+            <span class="badge badge-${b.type}">${b.type === 'gold' ? 'Gold' : 'Normal'}</span>
+            <button class="btn-del" onclick="eliminarBoleto('${b.num}')" title="Eliminar">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function eliminarBoleto(num) {
+      if (!confirm(`¿Eliminar el boleto #${num}?`)) return;
+      boletos = boletos.filter(b => b.num !== num);
+      guardar();
+      renderBoletos();
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    /* ——— Sorteo ——— */
+    function renderStats() {
+      const normales = boletos.filter(b => b.type === 'normal').length;
+      const golds    = boletos.filter(b => b.type === 'gold').length;
+      document.getElementById('stat-normal').textContent = normales;
+      document.getElementById('stat-gold').textContent   = golds;
+      document.getElementById('stat-total').textContent  = normales + golds * 2;
+      document.getElementById('ganador-card').classList.remove('visible');
+      document.getElementById('bombo-display').textContent = '?';
+      document.getElementById('bombo-display').className = 'bombo-inner';
+    }
+
+    function realizarSorteo() {
+      if (boletos.length === 0) {
+        alert('No hay boletos registrados para sortear.');
+        return;
+      }
+
+      /* Construir el pool (gold entra doble) */
+      const pool = [];
+      boletos.forEach(b => {
+        pool.push(b);
+        if (b.type === 'gold') pool.push(b);
+      });
+
+      const bombo   = document.getElementById('bombo');
+      const display = document.getElementById('bombo-display');
+      const btn     = document.getElementById('btn-sortear');
+      const card    = document.getElementById('ganador-card');
+
+      card.classList.remove('visible');
+      btn.disabled = true;
+      bombo.classList.add('spinning');
+
+      let ticks = 0;
+      const totalTicks = 22;
+
+      const iv = setInterval(() => {
+        const r = pool[Math.floor(Math.random() * pool.length)];
+        display.textContent = '#' + r.num;
+        display.className   = 'bombo-inner active' + (r.type === 'gold' ? ' gold-active' : '');
+        ticks++;
+
+        if (ticks >= totalTicks) {
+          clearInterval(iv);
+          bombo.classList.remove('spinning');
+
+          /* Elegir ganador final */
+          const ganador = pool[Math.floor(Math.random() * pool.length)];
+          display.textContent = '#' + ganador.num;
+          display.className   = 'bombo-inner active' + (ganador.type === 'gold' ? ' gold-active' : '');
+
+          /* Mostrar card */
+          document.getElementById('g-num').textContent     = '#' + ganador.num;
+          document.getElementById('g-name').textContent    = ganador.name;
+          document.getElementById('g-contact').textContent = ganador.contact;
+          const badge = document.getElementById('g-badge');
+          badge.textContent  = ganador.type === 'gold' ? 'Boleto Gold' : 'Boleto Normal';
+          badge.className    = 'badge badge-' + ganador.type;
+          card.classList.add('visible');
+          btn.disabled = false;
+        }
+      }, 130);
+    }
+
+    /* ——— Init ——— */
+    renderBoletos();
+  </script>
+</body>
+</html>
