@@ -166,6 +166,7 @@
       transition: border-color 0.15s;
       width: 100%;
       -webkit-appearance: none;
+      max-length: 50;
     }
     .field input::placeholder { color: var(--muted); }
     .field input:focus,
@@ -190,6 +191,7 @@
     }
     .btn-primary:hover { background: var(--gold-light); }
     .btn-primary:active { transform: scale(0.99); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .msg {
       font-size: 13px;
@@ -312,6 +314,11 @@
       gap: 10px;
       margin-bottom: 1.5rem;
     }
+    @media (max-width: 600px) {
+      .sorteo-layout {
+        grid-template-columns: 1fr;
+      }
+    }
     .stat-box {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -341,6 +348,12 @@
       position: relative;
       transition: border-color 0.3s;
     }
+    @media (max-width: 600px) {
+      .bombo {
+        width: 140px;
+        height: 140px;
+      }
+    }
     .bombo.spinning {
       animation: bomboSpin 0.35s linear infinite;
       border-color: var(--gold-border);
@@ -356,6 +369,11 @@
       font-weight: 400;
       color: var(--muted);
       transition: color 0.1s;
+    }
+    @media (max-width: 600px) {
+      .bombo-inner {
+        font-size: 2rem;
+      }
     }
     .bombo-inner.active { color: var(--text); }
     .bombo-inner.gold-active { color: var(--gold-light); }
@@ -374,7 +392,15 @@
       transition: all 0.2s;
     }
     .btn-sortear:hover:not(:disabled) { background: var(--gold-bg); border-color: var(--gold); }
-    .btn-sortear:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn-sortear:disabled { 
+      opacity: 0.3; 
+      cursor: not-allowed;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.5; }
+    }
 
     /* Ganador */
     .ganador-card {
@@ -408,6 +434,11 @@
       line-height: 1;
       margin-bottom: 0.5rem;
     }
+    @media (max-width: 600px) {
+      .ganador-num {
+        font-size: 3.5rem;
+      }
+    }
     .ganador-name {
       font-size: 1.5rem;
       font-weight: 500;
@@ -423,6 +454,75 @@
       height: 1px;
       background: var(--gold-border);
       margin: 1rem auto;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.visible {
+      display: flex;
+    }
+    .modal-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      max-width: 400px;
+      text-align: center;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: none; opacity: 1; }
+    }
+    .modal-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+    .modal-message {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .modal-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .modal-btn-confirm {
+      background: var(--danger);
+      color: white;
+    }
+    .modal-btn-confirm:hover {
+      background: #e74c3c;
+    }
+    .modal-btn-cancel {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .modal-btn-cancel:hover {
+      border-color: var(--border-hover);
     }
 
     /* Scrollbar */
@@ -441,9 +541,9 @@
     </header>
 
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('registro')">Registro</button>
-      <button class="tab" onclick="switchTab('boletos')">Boletos</button>
-      <button class="tab" onclick="switchTab('sorteo')">Sorteo</button>
+      <button class="tab active" data-tab="registro">Registro</button>
+      <button class="tab" data-tab="boletos">Boletos</button>
+      <button class="tab" data-tab="sorteo">Sorteo</button>
     </div>
 
     <!-- PANEL: REGISTRO -->
@@ -453,15 +553,15 @@
         <div class="form-grid">
           <div class="field">
             <label>Número de boleto</label>
-            <input type="text" id="inp-num" placeholder="Ej. 042" />
+            <input type="text" id="inp-num" placeholder="Ej. 042" maxlength="4" />
           </div>
           <div class="field">
             <label>Nombre completo</label>
-            <input type="text" id="inp-name" placeholder="Juan Pérez" />
+            <input type="text" id="inp-name" placeholder="Juan Pérez" maxlength="50" />
           </div>
           <div class="field">
             <label>Contacto</label>
-            <input type="text" id="inp-contact" placeholder="0991234567" />
+            <input type="text" id="inp-contact" placeholder="0991234567" maxlength="20" />
           </div>
           <div class="field full">
             <label>Tipo de boleto</label>
@@ -471,7 +571,7 @@
             </select>
           </div>
         </div>
-        <button class="btn-primary" onclick="agregarBoleto()">+ Agregar boleto</button>
+        <button class="btn-primary" id="btn-agregar">+ Agregar boleto</button>
         <p class="msg" id="reg-msg"></p>
         <div class="info-tip">Los boletos <strong>Gold</strong> ingresan dos veces al bombo del sorteo, duplicando automáticamente su probabilidad de ganar frente a los boletos normales.</div>
       </div>
@@ -508,7 +608,7 @@
           <div class="bombo" id="bombo">
             <span class="bombo-inner" id="bombo-display">?</span>
           </div>
-          <button class="btn-sortear" id="btn-sortear" onclick="realizarSorteo()">Realizar sorteo</button>
+          <button class="btn-sortear" id="btn-sortear">Realizar sorteo</button>
         </div>
       </div>
 
@@ -524,12 +624,96 @@
 
   </div>
 
+  <!-- Modal de confirmación -->
+  <div class="modal" id="modal-confirm">
+    <div class="modal-content">
+      <div class="modal-title" id="modal-title">Confirmar</div>
+      <div class="modal-message" id="modal-message"></div>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-cancel" id="modal-cancel">Cancelar</button>
+        <button class="modal-btn modal-btn-confirm" id="modal-confirm-btn">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     /* ——— Estado ——— */
-    let boletos = JSON.parse(localStorage.getItem('rifa_boletos') || '[]');
+    let boletos = [];
+    let confirmCallback = null;
+
+    function cargar() {
+      try {
+        boletos = JSON.parse(localStorage.getItem('rifa_boletos') || '[]');
+      } catch (e) {
+        console.error('Error cargando datos:', e);
+        boletos = [];
+        mostrarError('Error al cargar los datos guardados');
+      }
+    }
 
     function guardar() {
-      localStorage.setItem('rifa_boletos', JSON.stringify(boletos));
+      try {
+        localStorage.setItem('rifa_boletos', JSON.stringify(boletos));
+      } catch (e) {
+        console.error('Error guardando datos:', e);
+        mostrarError('No se pudo guardar. Verifica el almacenamiento.');
+      }
+    }
+
+    /* ——— Validación ——— */
+    function validarNumero(num) {
+      if (!/^\d+$/.test(num)) {
+        return 'El número debe contener solo dígitos.';
+      }
+      if (num.length > 4) {
+        return 'El número no puede exceder 4 dígitos.';
+      }
+      if (num.length === 0) {
+        return 'El número no puede estar vacío.';
+      }
+      return null;
+    }
+
+    function validarNombre(name) {
+      if (name.length < 3) {
+        return 'El nombre debe tener al menos 3 caracteres.';
+      }
+      return null;
+    }
+
+    function validarContacto(contact) {
+      if (contact.length < 7) {
+        return 'El contacto debe tener al menos 7 caracteres.';
+      }
+      return null;
+    }
+
+    function escHtml(str) {
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return str.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    /* ——— Modal ——— */
+    function mostrarConfirmacion(titulo, mensaje, callback) {
+      document.getElementById('modal-title').textContent = titulo;
+      document.getElementById('modal-message').textContent = mensaje;
+      document.getElementById('modal-confirm').classList.add('visible');
+      confirmCallback = callback;
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal-confirm').classList.remove('visible');
+      confirmCallback = null;
+    }
+
+    function mostrarError(mensaje) {
+      console.error(mensaje);
     }
 
     /* ——— Tabs ——— */
@@ -537,11 +721,23 @@
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
       const tabs = ['registro', 'boletos', 'sorteo'];
-      document.querySelectorAll('.tab')[tabs.indexOf(tab)].classList.add('active');
-      document.getElementById('panel-' + tab).classList.add('active');
-      if (tab === 'boletos') renderBoletos();
-      if (tab === 'sorteo') renderStats();
+      const index = tabs.indexOf(tab);
+      if (index !== -1) {
+        document.querySelectorAll('.tab')[index].classList.add('active');
+        document.getElementById('panel-' + tab).classList.add('active');
+        if (tab === 'boletos') renderBoletos();
+        if (tab === 'sorteo') renderStats();
+      }
     }
+
+    /* ——— Eventos de Tabs ——— */
+    document.addEventListener('click', (e) => {
+      const tab = e.target.closest('.tab');
+      if (tab) {
+        const tabName = tab.dataset.tab;
+        switchTab(tabName);
+      }
+    });
 
     /* ——— Registro ——— */
     function agregarBoleto() {
@@ -551,10 +747,34 @@
       const type    = document.getElementById('inp-type').value;
       const msg     = document.getElementById('reg-msg');
 
+      // Validar campos vacíos
       if (!num || !name || !contact) {
         setMsg(msg, 'err', 'Por favor completa todos los campos.');
         return;
       }
+
+      // Validar número
+      const errNum = validarNumero(num);
+      if (errNum) {
+        setMsg(msg, 'err', errNum);
+        return;
+      }
+
+      // Validar nombre
+      const errName = validarNombre(name);
+      if (errName) {
+        setMsg(msg, 'err', errName);
+        return;
+      }
+
+      // Validar contacto
+      const errContact = validarContacto(contact);
+      if (errContact) {
+        setMsg(msg, 'err', errContact);
+        return;
+      }
+
+      // Verificar duplicado
       if (boletos.find(b => b.num === num)) {
         setMsg(msg, 'err', `El boleto #${num} ya está registrado.`);
         return;
@@ -567,6 +787,7 @@
       document.getElementById('inp-name').value = '';
       document.getElementById('inp-contact').value = '';
       document.getElementById('inp-type').value = 'normal';
+      document.getElementById('inp-num').focus();
     }
 
     function setMsg(el, type, text) {
@@ -574,6 +795,14 @@
       el.textContent = text;
       if (type === 'ok') setTimeout(() => el.textContent = '', 3500);
     }
+
+    /* ——— Evento de botón agregar ——— */
+    document.getElementById('btn-agregar').addEventListener('click', agregarBoleto);
+
+    /* ——— Tecla Enter en inputs ——— */
+    document.getElementById('inp-contact').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') agregarBoleto();
+    });
 
     /* ——— Lista ——— */
     function renderBoletos() {
@@ -591,35 +820,48 @@
       }
 
       const sorted = [...boletos].sort((a, b) =>
-        a.num.localeCompare(b.num, undefined, { numeric: true })
+        parseInt(a.num) - parseInt(b.num)
       );
 
-      container.innerHTML = sorted.map(b => `
-        <div class="ticket-item ${b.type}">
-          <div class="ticket-left">
-            <div class="ticket-num">#${b.num}</div>
-            <div class="ticket-meta">
-              <div class="ticket-name">${escHtml(b.name)}</div>
-              <div class="ticket-contact">${escHtml(b.contact)}</div>
+      const html = sorted.map(b => {
+        const badgeClass = b.type === 'gold' ? 'badge-gold' : 'badge-normal';
+        const badgeText = b.type === 'gold' ? 'Gold' : 'Normal';
+        return `
+          <div class="ticket-item ${b.type}">
+            <div class="ticket-left">
+              <div class="ticket-num">#${escHtml(b.num)}</div>
+              <div class="ticket-meta">
+                <div class="ticket-name">${escHtml(b.name)}</div>
+                <div class="ticket-contact">${escHtml(b.contact)}</div>
+              </div>
+            </div>
+            <div class="ticket-right">
+              <span class="badge ${badgeClass}">${badgeText}</span>
+              <button class="btn-del" data-num="${escHtml(b.num)}" title="Eliminar">✕</button>
             </div>
           </div>
-          <div class="ticket-right">
-            <span class="badge badge-${b.type}">${b.type === 'gold' ? 'Gold' : 'Normal'}</span>
-            <button class="btn-del" onclick="eliminarBoleto('${b.num}')" title="Eliminar">✕</button>
-          </div>
-        </div>
-      `).join('');
-    }
+        `;
+      }).join('');
 
-    function eliminarBoleto(num) {
-      if (!confirm(`¿Eliminar el boleto #${num}?`)) return;
-      boletos = boletos.filter(b => b.num !== num);
-      guardar();
-      renderBoletos();
-    }
+      container.innerHTML = html;
 
-    function escHtml(str) {
-      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      // Delegación de eventos para botones de eliminar
+      container.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-del');
+        if (btn) {
+          const num = btn.dataset.num;
+          mostrarConfirmacion(
+            'Eliminar boleto',
+            `¿Estás seguro que quieres eliminar el boleto #${num}?`,
+            () => {
+              boletos = boletos.filter(b => b.num !== num);
+              guardar();
+              renderBoletos();
+              cerrarModal();
+            }
+          );
+        }
+      });
     }
 
     /* ——— Sorteo ——— */
@@ -632,11 +874,17 @@
       document.getElementById('ganador-card').classList.remove('visible');
       document.getElementById('bombo-display').textContent = '?';
       document.getElementById('bombo-display').className = 'bombo-inner';
+      document.getElementById('btn-sortear').disabled = false;
     }
 
     function realizarSorteo() {
       if (boletos.length === 0) {
-        alert('No hay boletos registrados para sortear.');
+        mostrarError('No hay boletos registrados para sortear.');
+        mostrarConfirmacion(
+          'Sin boletos',
+          'No hay boletos registrados. Ve a la sección de Registro para agregar boletos.',
+          cerrarModal
+        );
         return;
       }
 
@@ -652,7 +900,11 @@
       const btn     = document.getElementById('btn-sortear');
       const card    = document.getElementById('ganador-card');
 
+      // Limpiar estado anterior
       card.classList.remove('visible');
+      display.className = 'bombo-inner';
+      display.textContent = '?';
+
       btn.disabled = true;
       bombo.classList.add('spinning');
 
@@ -661,7 +913,7 @@
 
       const iv = setInterval(() => {
         const r = pool[Math.floor(Math.random() * pool.length)];
-        display.textContent = '#' + r.num;
+        display.textContent = '#' + escHtml(r.num);
         display.className   = 'bombo-inner active' + (r.type === 'gold' ? ' gold-active' : '');
         ticks++;
 
@@ -671,13 +923,13 @@
 
           /* Elegir ganador final */
           const ganador = pool[Math.floor(Math.random() * pool.length)];
-          display.textContent = '#' + ganador.num;
+          display.textContent = '#' + escHtml(ganador.num);
           display.className   = 'bombo-inner active' + (ganador.type === 'gold' ? ' gold-active' : '');
 
           /* Mostrar card */
-          document.getElementById('g-num').textContent     = '#' + ganador.num;
-          document.getElementById('g-name').textContent    = ganador.name;
-          document.getElementById('g-contact').textContent = ganador.contact;
+          document.getElementById('g-num').textContent     = '#' + escHtml(ganador.num);
+          document.getElementById('g-name').textContent    = escHtml(ganador.name);
+          document.getElementById('g-contact').textContent = escHtml(ganador.contact);
           const badge = document.getElementById('g-badge');
           badge.textContent  = ganador.type === 'gold' ? 'Boleto Gold' : 'Boleto Normal';
           badge.className    = 'badge badge-' + ganador.type;
@@ -687,7 +939,17 @@
       }, 130);
     }
 
+    /* ——— Evento del botón sortear ——— */
+    document.getElementById('btn-sortear').addEventListener('click', realizarSorteo);
+
+    /* ——— Eventos del modal ——— */
+    document.getElementById('modal-cancel').addEventListener('click', cerrarModal);
+    document.getElementById('modal-confirm-btn').addEventListener('click', () => {
+      if (confirmCallback) confirmCallback();
+    });
+
     /* ——— Init ——— */
+    cargar();
     renderBoletos();
   </script>
 </body>
