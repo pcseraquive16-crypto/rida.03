@@ -15,10 +15,10 @@
       --border-hover: rgba(255,255,255,0.16);
       --text: #f0ede6;
       --muted: rgba(240,237,230,0.45);
-      --gold: #c9933a;
-      --gold-light: #f0c060;
-      --gold-bg: rgba(201,147,58,0.1);
-      --gold-border: rgba(201,147,58,0.35);
+      --gold: #2196F3;
+      --gold-light: #64B5F6;
+      --gold-bg: rgba(33,150,243,0.1);
+      --gold-border: rgba(33,150,243,0.35);
       --danger: #c0392b;
       --success: #27ae60;
       --radius: 12px;
@@ -40,7 +40,7 @@
       content: '';
       position: fixed;
       inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201,147,58,0.07) 0%, transparent 60%);
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(33,150,243,0.07) 0%, transparent 60%);
       pointer-events: none;
       z-index: 0;
     }
@@ -357,7 +357,7 @@
     .bombo.spinning {
       animation: bomboSpin 0.35s linear infinite;
       border-color: var(--gold-border);
-      box-shadow: 0 0 24px rgba(201,147,58,0.12);
+      box-shadow: 0 0 24px rgba(33,150,243,0.12);
     }
     @keyframes bomboSpin {
       0%   { transform: rotate(0deg); }
@@ -536,7 +536,7 @@
 
     <header class="header">
       <p class="header-label">Sistema oficial</p>
-      <h1>Rifa <span>Gold</span></h1>
+      <h1>Rifa <span>Blue</span></h1>
       <p class="header-sub">Registra boletos, gestiona participantes y realiza el sorteo.</p>
     </header>
 
@@ -567,13 +567,13 @@
             <label>Tipo de boleto</label>
             <select id="inp-type">
               <option value="normal">Normal — probabilidad estándar</option>
-              <option value="gold">Gold — 2× probabilidad de ganar</option>
+              <option value="gold">Blue — 2× probabilidad de ganar</option>
             </select>
           </div>
         </div>
         <button class="btn-primary" id="btn-agregar">+ Agregar boleto</button>
         <p class="msg" id="reg-msg"></p>
-        <div class="info-tip">Los boletos <strong>Gold</strong> ingresan dos veces al bombo del sorteo, duplicando automáticamente su probabilidad de ganar frente a los boletos normales.</div>
+        <div class="info-tip">Los boletos <strong>Blue</strong> ingresan dos veces al bombo del sorteo, duplicando automáticamente su probabilidad de ganar frente a los boletos normales.</div>
       </div>
     </div>
 
@@ -594,7 +594,7 @@
           <div class="stat-box-val" id="stat-normal">0</div>
         </div>
         <div class="stat-box">
-          <div class="stat-box-label">Gold</div>
+          <div class="stat-box-label">Blue</div>
           <div class="stat-box-val gold-val" id="stat-gold">0</div>
         </div>
         <div class="stat-box">
@@ -825,7 +825,7 @@
 
       const html = sorted.map(b => {
         const badgeClass = b.type === 'gold' ? 'badge-gold' : 'badge-normal';
-        const badgeText = b.type === 'gold' ? 'Gold' : 'Normal';
+        const badgeText = b.type === 'gold' ? 'Blue' : 'Normal';
         return `
           <div class="ticket-item ${b.type}">
             <div class="ticket-left">
@@ -931,7 +931,7 @@
           document.getElementById('g-name').textContent    = escHtml(ganador.name);
           document.getElementById('g-contact').textContent = escHtml(ganador.contact);
           const badge = document.getElementById('g-badge');
-          badge.textContent  = ganador.type === 'gold' ? 'Boleto Gold' : 'Boleto Normal';
+          badge.textContent  = ganador.type === 'gold' ? 'Boleto Blue' : 'Boleto Normal';
           badge.className    = 'badge badge-' + ganador.type;
           card.classList.add('visible');
           btn.disabled = false;
